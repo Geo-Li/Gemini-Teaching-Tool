@@ -13,12 +13,11 @@ FONT_INFO = settings["Font"]
 
 class SearchWindow(CTk):
     def __init__(self,
-                 fg_color: Union[str, Tuple[str, str], None] = None,
                  **kwargs):
-        super().__init__(fg_color, **kwargs)
+        super().__init__(**kwargs)
         font = CTkFont(family=FONT_INFO["family"], size=int(FONT_INFO["size"]))
         set_appearance_mode("Light")
-        self.geometry("500x200")
+        self.geometry("800x200")
         self.configure(fg_color="white")
         self.title("Search")
 
@@ -26,35 +25,53 @@ class SearchWindow(CTk):
                                  text="MyEdMaster",
                                  font=font)
         message_label.pack(padx=20, pady=20)
+        search_frame = CTkFrame(master=self,
+                                fg_color="white")
+        search_frame.grid_columnconfigure(0, weight=5)
+        search_frame.grid_columnconfigure(1, weight=1)
+        # Set up the search input entry
         self.search_input = StringVar()
-        search_input_entry = CTkEntry(master=self,
-                                placeholder_text="Copy & Paste your API key here",
-                                textvariable=self.search_input,
-                                width=300)
-        search_input_entry.pack(padx=20, pady=20)
+        search_input_entry = CTkEntry(master=search_frame,
+                                placeholder_text="Ask me questions!",
+                                textvariable=self.search_input)
+        search_input_entry.grid(row=0, column=0, sticky="we", padx=(20,0))
 
-        confirm_button = CTkButton(self,
+        search_button = CTkButton(master=search_frame,
                                    text="Search",
                                    command=self.search)
-        confirm_button.pack(padx=20, pady=20)
+        search_button.grid(row=0, column=1)
+        search_frame.pack(fill="both", expand=True)
 
+        # Initialize the Bing Search component
         try:
             api_keys = ConfigParser()
-            api_keys.read("api_keys.ini")
-            bing_search_api = api_key["API_Keys"]["bing_search_api"]
+            api_keys.read("config/api_keys.ini")
+            bing_search_api = api_keys["API_Keys"]["bing_search_api"]
             if len(bing_search_api) != 32:
                 message = "Please provide the Bing Search API key in the Login window"
                 alertWindow = AlertWindow(message=message)
         except:
             message = "Please provide the Bing Search API key in the Login window"
             alertWindow = AlertWindow(message=message)
-
+        endpoint = "https://api.bing.microsoft.com/v7.0/search"
+        self.bing_search_model = BingSearch(bing_search_api, endpoint)
+            response = model.search({
+                'q': "how to do matrix multiplication",
+                'count': 50,
+                'offset': 0,
+                'mkt': 'en-US',
+                'freshness': 'Month'
+            })
+            urls = model.parse_url(response)
+            html = model.parse_html(urls, range(1))
+            print(html)
+        
 
         self.mainloop()
 
 
     def search(self):
-        pass
+        query = self.search_input.get()
 
 
     def close(self):

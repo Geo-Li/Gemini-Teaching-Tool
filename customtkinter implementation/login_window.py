@@ -78,7 +78,7 @@ class LoginWindow(CTk):
                 "bing_search_api": self.bing_api_key.get(),
                 "gemini_model_api": self.gemini_api_key.get()
             }
-            with open('api_keys.ini', 'w') as api_keys_file:
+            with open('config/api_keys.ini', 'w') as api_keys_file:
                 api_keys.write(api_keys_file)
             message = "Bing Search and Gemini Model API keys have been set!"
             alertWindow = AlertWindow(message=message,
